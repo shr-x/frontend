@@ -11,13 +11,13 @@ export const getStoreInfo = async () => {
   return response.data;
 };
 
-export const getOrders = async (storeId: string) => {
-  const response = await api.get(`/api/orders?storeId=${storeId}`);
+export const getOrders = async () => {
+  const response = await api.get(`/api/orders`);
   return response.data;
 };
 
-export const getProducts = async (storeId: string) => {
-  const response = await api.get(`/api/products?storeId=${storeId}`);
+export const getProducts = async () => {
+  const response = await api.get(`/api/products`);
   return response.data;
 };
 

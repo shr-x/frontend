@@ -19,11 +19,8 @@ export function DashboardStats() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const store = await getStoreInfo();
-        if (store) {
-          const response = await axios.get(`/api/dashboard-stats?storeId=${store._id}`);
-          setStats(response.data);
-        }
+        const response = await axios.get(`/api/dashboard-stats`);
+        setStats(response.data);
       } catch (error) {
         console.error('Error fetching stats:', error);
       } finally {

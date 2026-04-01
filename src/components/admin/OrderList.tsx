@@ -27,11 +27,8 @@ export function OrderList() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const store = await getStoreInfo();
-        if (store) {
-          const ordersData = await getOrders(store._id);
-          setOrders(ordersData);
-        }
+        const ordersData = await getOrders();
+        setOrders(ordersData);
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {

@@ -19,11 +19,8 @@ export function ProductList() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const store = await getStoreInfo();
-        if (store) {
-          const productsData = await getProducts(store._id);
-          setProducts(productsData);
-        }
+        const productsData = await getProducts();
+        setProducts(productsData);
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
