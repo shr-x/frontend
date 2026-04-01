@@ -1,8 +1,10 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 export function ProductList() {
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState<any[]>([]);
 
   useEffect(() => {
     // Replace with your actual storeId
@@ -39,7 +41,7 @@ export function ProductList() {
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">{product.name}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{product.category}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-slate-900">{product.basePrice}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{product.variants.reduce((acc, v) => acc + v.stock, 0)}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{product.variants.reduce((acc: number, v: any) => acc + v.stock, 0)}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm">
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${product.isAvailable ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                     {product.isAvailable ? 'Available' : 'Unavailable'}

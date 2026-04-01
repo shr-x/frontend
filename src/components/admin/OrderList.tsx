@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { format } from 'date-fns';
@@ -10,7 +12,7 @@ const statusStyles: Record<string, string> = {
 };
 
 export function OrderList() {
-  const [orders, setOrders] = useState([]);
+  const [orders, setOrders] = useState<any[]>([]);
 
   useEffect(() => {
     // Replace with your actual storeId
@@ -57,7 +59,7 @@ export function OrderList() {
               <tr key={order._id} className="hover:bg-slate-50 transition-colors cursor-pointer">
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">{order._id}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{order.customerId?.name || 'N/A'}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600 truncate max-w-xs">{order.items.map(i => i.name).join(', ')}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600 truncate max-w-xs">{order.items.map((i: any) => i.name).join(', ')}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-slate-900">{order.totalAmount}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm">
                   <select 
