@@ -7,7 +7,7 @@ const orders = [
   { id: 'ORD-003', customer: 'Amit Patel', items: 'Fish Fillet (1kg)', amount: '₹650', status: 'delivered', time: new Date() },
 ];
 
-const statusStyles = {
+const statusStyles: Record<string, string> = {
   preparing: 'bg-yellow-100 text-yellow-800',
   out_for_delivery: 'bg-blue-100 text-blue-800',
   delivered: 'bg-green-100 text-green-800',
