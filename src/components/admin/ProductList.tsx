@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { getProducts, getStoreInfo } from '@/lib/api';
+import { getProducts, getStoreInfo, updateProduct } from '@/lib/api';
 import { 
   Package, 
   Tag, 
@@ -9,7 +9,8 @@ import {
   CheckCircle2, 
   XCircle,
   MoreVertical,
-  Plus
+  Plus,
+  Edit2
 } from 'lucide-react';
 
 export function ProductList() {
@@ -29,6 +30,26 @@ export function ProductList() {
     };
     fetchData();
   }, []);
+
+  const handlePriceChange = async (productId: string, newPrice: string) => {
+    try {
+      const price = parseFloat(newPrice);
+      if (isNaN(price)) return;
+      const updated = await updateProduct(productId, { basePrice: price });
+      setProducts(products.map(p => p._id === productId ? updated : p));
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const toggleAvailability = async (productId: string, current: boolean) => {
+    try {
+      const updated = await updateProduct(productId, { isAvailable: !current });
+      setProducts(products.map(p => p._id === productId ? updated : p));
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   if (loading) {
     return (
@@ -100,7 +121,15 @@ export function ProductList() {
                     </span>
                   </td>
                   <td className="px-8 py-5 whitespace-nowrap">
-                    <span className="text-sm font-black text-slate-900">₹{product.basePrice}</span>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-sm font-black text-slate-900">₹</span>
+                      <input 
+                        type="number" 
+                        defaultValue={product.basePrice}
+                        onBlur={(e) => handlePriceChange(product._id, e.target.value)}
+                        className="w-20 px-2 py-1 bg-slate-50 border border-slate-200 rounded text-sm font-bold focus:ring-2 focus:ring-red-500 outline-none"
+                      />
+                    </div>
                   </td>
                   <td className="px-8 py-5 whitespace-nowrap">
                     <div className="flex flex-col">
@@ -109,13 +138,16 @@ export function ProductList() {
                     </div>
                   </td>
                   <td className="px-8 py-5 whitespace-nowrap">
-                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ${product.isAvailable ? 'bg-green-50 text-green-700 ring-1 ring-green-600/10' : 'bg-red-50 text-red-700 ring-1 ring-red-600/10'}`}>
+                    <button 
+                      onClick={() => toggleAvailability(product._id, product.isAvailable)}
+                      className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold transition-all ${product.isAvailable ? 'bg-green-50 text-green-700 ring-1 ring-green-600/10 hover:bg-green-100' : 'bg-red-50 text-red-700 ring-1 ring-red-600/10 hover:bg-red-100'}`}
+                    >
                       {product.isAvailable ? (
                         <><CheckCircle2 className="h-3 w-3 mr-1" /> Active</>
                       ) : (
                         <><XCircle className="h-3 w-3 mr-1" /> Disabled</>
                       )}
-                    </span>
+                    </button>
                   </td>
                   <td className="px-8 py-5 whitespace-nowrap text-right">
                     <button className="p-2 text-slate-400 hover:text-slate-600 hover:bg-white rounded-lg transition-all border border-transparent hover:border-slate-200 shadow-sm">

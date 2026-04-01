@@ -42,6 +42,7 @@ export function OrderList() {
     try {
       const updatedOrder = await updateOrderStatus(orderId, newStatus);
       setOrders(orders.map((o: any) => o._id === orderId ? updatedOrder : o));
+      alert(`Order status updated to ${newStatus}!`);
     } catch (error) {
       console.error('Error updating order status:', error);
     }

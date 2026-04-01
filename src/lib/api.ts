@@ -21,8 +21,28 @@ export const getProducts = async () => {
   return response.data;
 };
 
+export const createProduct = async (productData: any) => {
+  const response = await api.post(`/api/products`, productData);
+  return response.data;
+};
+
+export const updateProduct = async (productId: string, productData: any) => {
+  const response = await api.patch(`/api/products/${productId}`, productData);
+  return response.data;
+};
+
+export const deleteProduct = async (productId: string) => {
+  const response = await api.delete(`/api/products/${productId}`);
+  return response.data;
+};
+
 export const updateOrderStatus = async (orderId: string, status: string) => {
   const response = await api.patch(`/api/orders/${orderId}`, { status });
+  return response.data;
+};
+
+export const createCampaign = async (campaignData: any) => {
+  const response = await api.post(`/api/marketing/campaign`, campaignData);
   return response.data;
 };
 
