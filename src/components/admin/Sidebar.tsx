@@ -10,7 +10,8 @@ import {
   Users, 
   Settings, 
   MessageSquare,
-  BarChart3
+  BarChart3,
+  X
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -33,14 +34,17 @@ export function Sidebar({ onClose, className }: SidebarProps) {
   const pathname = usePathname();
 
   return (
-    <div className={cn("flex h-full w-64 flex-col bg-slate-900 text-white", className)}>
-      <div className="flex h-20 items-center justify-between px-6 border-b border-slate-800">
-        <h1 className="text-2xl font-bold text-red-500">MeatSaaS</h1>
+    <div className={cn("flex h-full w-72 flex-col bg-slate-900 text-white shadow-2xl", className)}>
+      <div className="flex h-20 items-center justify-between px-8 border-b border-slate-800/50">
+        <div className="flex items-center space-x-3">
+          <div className="h-9 w-9 bg-red-600 rounded-xl flex items-center justify-center shadow-lg shadow-red-900/20">
+            <Package className="h-5 w-5 text-white" />
+          </div>
+          <h1 className="text-xl font-black tracking-tighter text-white">MEAT<span className="text-red-500">SAAS</span></h1>
+        </div>
         {onClose && (
-          <button onClick={onClose} className="lg:hidden text-slate-400 hover:text-white">
-            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+          <button onClick={onClose} className="lg:hidden p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors">
+            <X className="h-5 w-5" />
           </button>
         )}
       </div>

@@ -24,7 +24,7 @@ export default function Dashboard() {
           onClick={() => setMobileOpen(false)}
         >
           <div 
-            className="fixed inset-y-0 left-0 w-72 z-50 animate-in slide-in-from-left duration-300"
+            className="fixed inset-y-0 left-0 w-72 z-50 bg-white shadow-2xl animate-in slide-in-from-left duration-300"
             onClick={(e) => e.stopPropagation()}
           >
             <Sidebar onClose={() => setMobileOpen(false)} />
