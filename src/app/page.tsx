@@ -1,17 +1,44 @@
-import React from 'react';
+'use client';
+
+import React, { useState } from 'react';
 import { Sidebar } from '@/components/admin/Sidebar';
 import { DashboardStats } from '@/components/admin/DashboardStats';
 import { OrderList } from '@/components/admin/OrderList';
-import { Bell, Search } from 'lucide-react';
+import { Bell, Search, Menu, X } from 'lucide-react';
 
 export default function Dashboard() {
+  const [mobileOpen, setMobileOpen] = useState(false);
+
   return (
-    <div className="flex h-screen bg-slate-50">
-      <Sidebar />
+    <div className="min-h-screen flex flex-col lg:flex-row bg-slate-50">
+      {/* Mobile Sidebar Overlay */}
+      {mobileOpen && (
+        <div 
+          className="fixed inset-0 z-50 bg-black/40 lg:hidden"
+          onClick={() => setMobileOpen(false)}
+        >
+          <div 
+            className="fixed inset-y-0 left-0 w-64 z-50 animate-in slide-in-from-left duration-300"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Sidebar onClose={() => setMobileOpen(false)} />
+          </div>
+        </div>
+      )}
+
+      {/* Desktop Sidebar */}
+      <Sidebar className="hidden lg:flex" />
+
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
-        <header className="h-20 bg-white border-b border-slate-200 flex items-center justify-between px-8">
+        <header className="h-20 bg-white border-b border-slate-200 flex items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex items-center flex-1 max-w-xl">
+            <button 
+              onClick={() => setMobileOpen(true)}
+              className="p-2 mr-4 text-slate-500 hover:bg-slate-100 rounded-lg lg:hidden"
+            >
+              <Menu className="h-6 w-6" />
+            </button>
             <div className="relative w-full">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <input 
@@ -26,7 +53,7 @@ export default function Dashboard() {
               <Bell className="h-6 w-6" />
               <span className="absolute top-2 right-2 h-2 w-2 bg-red-500 rounded-full border-2 border-white"></span>
             </button>
-            <div className="h-10 w-px bg-slate-200"></div>
+            <div className="h-10 w-px bg-slate-200 hidden sm:block"></div>
             <div className="flex items-center space-x-3">
               <div className="text-right hidden sm:block">
                 <p className="text-sm font-bold text-slate-900">John Doe</p>
@@ -40,14 +67,14 @@ export default function Dashboard() {
         </header>
 
         {/* Main Content */}
-        <main className="flex-1 overflow-y-auto p-8">
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
           <div className="max-w-7xl mx-auto space-y-8">
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h1 className="text-2xl font-bold text-slate-900">Dashboard Overview</h1>
                 <p className="text-slate-500 text-sm">Welcome back, here's what's happening today.</p>
               </div>
-              <button className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-lg shadow-red-200 transition-all flex items-center">
+              <button className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-lg shadow-red-200 transition-all flex items-center justify-center">
                 Create Broadcast
               </button>
             </div>

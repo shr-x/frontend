@@ -24,13 +24,25 @@ const navItems = [
   { name: 'Settings', icon: Settings, href: '/settings' },
 ];
 
-export function Sidebar() {
+interface SidebarProps {
+  onClose?: () => void;
+  className?: string;
+}
+
+export function Sidebar({ onClose, className }: SidebarProps) {
   const pathname = usePathname();
 
   return (
-    <div className="flex h-screen w-64 flex-col bg-slate-900 text-white">
-      <div className="flex h-20 items-center justify-center border-b border-slate-800">
+    <div className={cn("flex h-full w-64 flex-col bg-slate-900 text-white", className)}>
+      <div className="flex h-20 items-center justify-between px-6 border-b border-slate-800">
         <h1 className="text-2xl font-bold text-red-500">MeatSaaS</h1>
+        {onClose && (
+          <button onClick={onClose} className="lg:hidden text-slate-400 hover:text-white">
+            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        )}
       </div>
       <nav className="flex-1 space-y-1 px-4 py-6">
         {navItems.map((item) => (
