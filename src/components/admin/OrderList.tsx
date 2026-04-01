@@ -1,11 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { format } from 'date-fns';
-
-const orders = [
-  { id: 'ORD-001', customer: 'Rahul Sharma', items: 'Chicken Curry Cut (1kg)', amount: '₹280', status: 'preparing', time: new Date() },
-  { id: 'ORD-002', customer: 'Priya Singh', items: 'Mutton Bone-in (500g)', amount: '₹450', status: 'out_for_delivery', time: new Date() },
-  { id: 'ORD-003', customer: 'Amit Patel', items: 'Fish Fillet (1kg)', amount: '₹650', status: 'delivered', time: new Date() },
-];
 
 const statusStyles: Record<string, string> = {
   preparing: 'bg-yellow-100 text-yellow-800',
@@ -15,6 +10,30 @@ const statusStyles: Record<string, string> = {
 };
 
 export function OrderList() {
+  const [orders, setOrders] = useState([]);
+
+  useEffect(() => {
+    // Replace with your actual storeId
+    const storeId = '60d21b4667d0d8992e610c85'; 
+    axios.get(`/api/orders?storeId=${storeId}`)
+      .then(response => {
+        setOrders(response.data);
+      })
+      .catch(error => {
+        console.error('Error fetching orders:', error);
+      });
+  }, []);
+
+  const handleStatusChange = (orderId: string, newStatus: string) => {
+    axios.patch(`/api/orders/${orderId}`, { status: newStatus })
+      .then(response => {
+        setOrders(orders.map((o: any) => o._id === orderId ? response.data : o));
+      })
+      .catch(error => {
+        console.error('Error updating order status:', error);
+      });
+  };
+
   return (
     <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
       <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center">
@@ -34,19 +53,25 @@ export function OrderList() {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 bg-white">
-            {orders.map((order) => (
-              <tr key={order.id} className="hover:bg-slate-50 transition-colors cursor-pointer">
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">{order.id}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{order.customer}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600 truncate max-w-xs">{order.items}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-slate-900">{order.amount}</td>
+            {orders.map((order: any) => (
+              <tr key={order._id} className="hover:bg-slate-50 transition-colors cursor-pointer">
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">{order._id}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{order.customerId?.name || 'N/A'}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600 truncate max-w-xs">{order.items.map(i => i.name).join(', ')}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-slate-900">{order.totalAmount}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm">
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusStyles[order.status]}`}>
-                    {order.status.replace('_', ' ')}
-                  </span>
+                  <select 
+                    value={order.status} 
+                    onChange={(e) => handleStatusChange(order._id, e.target.value)}
+                    className={`px-2 py-1 rounded-full text-xs font-medium ${statusStyles[order.status]}`}>
+                    <option value="paid">Paid</option>
+                    <option value="preparing">Preparing</option>
+                    <option value="out_for_delivery">Out for Delivery</option>
+                    <option value="delivered">Delivered</option>
+                  </select>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
-                  {format(order.time, 'h:mm a')}
+                  {format(new Date(order.createdAt), 'h:mm a')}
                 </td>
               </tr>
             ))}
