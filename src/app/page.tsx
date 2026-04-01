@@ -5,7 +5,7 @@ import { Sidebar } from '@/components/admin/Sidebar';
 import { DashboardStats } from '@/components/admin/DashboardStats';
 import { OrderList } from '@/components/admin/OrderList';
 import { ProductList } from '@/components/admin/ProductList';
-import { Bell, Search, Menu, Sparkles, Send, Megaphone, Plus, AlertCircle } from 'lucide-react';
+import { Bell, Search, Menu, Sparkles, Send, Megaphone, Plus, AlertCircle, X, ShoppingBasket } from 'lucide-react';
 import { getStoreInfo, getOrders } from '@/lib/api';
 
 export default function Dashboard() {
@@ -256,6 +256,3 @@ export default function Dashboard() {
     </div>
   );
 }
-
-// Missing Lucide icons for this file
-import { ShoppingBasket } from 'lucide-react';
