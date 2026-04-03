@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { getProducts, getStoreInfo, updateProduct, createProduct } from '@/lib/api';
+import { getProducts, getStoreInfo, updateProduct, createProduct, uploadImage } from '@/lib/api';
 import { 
   Package, 
   Tag, 
@@ -11,13 +11,16 @@ import {
   MoreVertical,
   Plus,
   Edit2,
-  X
+  X,
+  Image as ImageIcon,
+  Loader2
 } from 'lucide-react';
 
 export function ProductList() {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
   const [newProduct, setNewProduct] = useState({
     name: '',
@@ -28,6 +31,25 @@ export function ProductList() {
     image: '',
     isAvailable: true,
   });
+
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    try {
+      const { filePath } = await uploadImage(file);
+      const fullUrl = `${apiUrl.endsWith('/') ? apiUrl.slice(0, -1) : apiUrl}${filePath}`;
+      setNewProduct({ ...newProduct, image: fullUrl });
+    } catch (error) {
+      console.error('Upload failed:', error);
+      alert('Failed to upload image. Please try again.');
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -232,14 +254,41 @@ export function ProductList() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Image URL</label>
-                <input 
-                  type="text" 
-                  value={newProduct.image}
-                  onChange={(e) => setNewProduct({...newProduct, image: e.target.value})}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 text-slate-900 font-medium focus:ring-4 focus:ring-red-500/10 focus:border-red-500 transition-all outline-none"
-                  placeholder="https://example.com/image.jpg"
-                />
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Product Image</label>
+                <div className="flex items-center gap-4">
+                  <div className="h-24 w-24 bg-slate-100 rounded-3xl overflow-hidden border-2 border-slate-50 relative group flex items-center justify-center">
+                    {newProduct.image ? (
+                      <img src={newProduct.image} alt="Preview" className="h-full w-full object-cover" />
+                    ) : (
+                      <ImageIcon className="h-8 w-8 text-slate-300" />
+                    )}
+                    {isUploading && (
+                      <div className="absolute inset-0 bg-white/60 flex items-center justify-center">
+                        <Loader2 className="h-6 w-6 text-red-600 animate-spin" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 space-y-3">
+                    <div className="relative">
+                      <input 
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                      />
+                      <button 
+                        type="button"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 text-slate-900 font-black text-xs uppercase tracking-widest hover:bg-slate-100 transition-all flex items-center justify-center gap-2"
+                      >
+                        <ImageIcon className="h-4 w-4" />
+                        {newProduct.image ? 'Change Image' : 'Upload Image'}
+                      </button>
+                    </div>
+                    <p className="text-[10px] font-bold text-slate-400 italic px-1 text-center">
+                      Recommended: 800x800px square image
+                    </p>
+                  </div>
+                </div>
               </div>
 
               <div className="flex gap-4 pt-4">

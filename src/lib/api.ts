@@ -97,6 +97,17 @@ export const updateSupportStatus = async (requestId: string, status: string) => 
   return response.data;
 };
 
+export const uploadImage = async (file: File) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  const response = await api.post('upload', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data;
+};
+
 export const exportReport = async () => {
   const response = await api.get('api/orders/export-report');
   return response.data;

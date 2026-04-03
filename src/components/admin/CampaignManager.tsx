@@ -1,13 +1,33 @@
 'use client';
 
 import React, { useState } from 'react';
-import { createCampaign } from '@/lib/api';
-import { Megaphone, Send, Image as ImageIcon, Sparkles } from 'lucide-react';
+import { createCampaign, uploadImage } from '@/lib/api';
+import { Megaphone, Send, Image as ImageIcon, Sparkles, Loader2, X } from 'lucide-react';
 
 export function CampaignManager() {
   const [campaignMessage, setCampaignMessage] = useState('');
   const [campaignImage, setCampaignImage] = useState('');
   const [isSendingCampaign, setIsSendingCampaign] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    try {
+      const { filePath } = await uploadImage(file);
+      const fullUrl = `${apiUrl.endsWith('/') ? apiUrl.slice(0, -1) : apiUrl}${filePath}`;
+      setCampaignImage(fullUrl);
+    } catch (error) {
+      console.error('Upload failed:', error);
+      alert('Failed to upload image. Please try again.');
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   const handleSendCampaign = async () => {
     if (!campaignMessage.trim()) return;
@@ -48,15 +68,45 @@ export function CampaignManager() {
               <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-2">
                 <ImageIcon className="h-3 w-3" /> Campaign Image (Optional)
               </label>
-              <span className="text-[10px] font-bold text-slate-300 italic">URL only</span>
+              {campaignImage && (
+                <button 
+                  onClick={() => setCampaignImage('')}
+                  className="text-[10px] font-bold text-red-500 hover:text-red-600 flex items-center gap-1"
+                >
+                  <X className="h-2.5 w-2.5" /> Remove
+                </button>
+              )}
             </div>
-            <input 
-              type="text"
-              className="w-full bg-slate-50/50 border border-slate-100 rounded-2xl px-6 py-4 text-slate-900 font-medium focus:bg-white focus:ring-4 focus:ring-red-500/5 focus:border-red-500 transition-all outline-none text-xs"
-              placeholder="Paste image URL here..."
-              value={campaignImage}
-              onChange={(e) => setCampaignImage(e.target.value)}
-            />
+            
+            <div className="flex gap-4 items-center">
+              {campaignImage ? (
+                <div className="h-20 w-20 bg-slate-50 rounded-2xl overflow-hidden border border-slate-100 shrink-0">
+                  <img src={campaignImage} alt="Campaign" className="h-full w-full object-cover" />
+                </div>
+              ) : (
+                <div className="h-20 w-20 bg-slate-50/50 rounded-2xl border-2 border-dashed border-slate-200 flex items-center justify-center shrink-0">
+                  {isUploading ? (
+                    <Loader2 className="h-5 w-5 text-red-600 animate-spin" />
+                  ) : (
+                    <ImageIcon className="h-5 w-5 text-slate-300" />
+                  )}
+                </div>
+              )}
+              
+              <div className="flex-1 relative">
+                <input 
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                  disabled={isUploading}
+                />
+                <div className="w-full bg-slate-50/50 border border-slate-100 rounded-2xl px-6 py-4 text-slate-400 font-medium text-xs flex items-center justify-between">
+                  <span>{isUploading ? 'Uploading...' : campaignImage ? 'Change Image' : 'Select Image File'}</span>
+                  {!isUploading && <Sparkles className="h-3 w-3 text-red-400" />}
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="space-y-2.5">
