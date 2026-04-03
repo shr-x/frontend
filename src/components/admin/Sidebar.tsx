@@ -12,10 +12,12 @@ import {
   X,
   ShoppingBasket,
   ChevronRight,
-  LifeBuoy
+  LifeBuoy,
+  ShieldCheck
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/lib/AuthContext';
+import Link from 'next/link';
 
 interface SidebarProps {
   onClose?: () => void;
@@ -99,6 +101,13 @@ export function Sidebar({ onClose, className, activeTab, setActiveTab, store }: 
             <Settings className="h-5 w-5" />
             <span>Settings</span>
           </button>
+          <Link 
+            href="/privacy-policy"
+            className="w-full flex items-center gap-4 px-4 py-4 rounded-2xl text-sm font-black text-slate-400 hover:text-slate-900 hover:bg-slate-50 transition-all duration-300 text-left group"
+          >
+            <ShieldCheck className="h-5 w-5" />
+            <span>Privacy Policy</span>
+          </Link>
           <button 
             onClick={logout}
             className="w-full flex items-center gap-4 px-4 py-4 rounded-2xl text-sm font-black text-slate-400 hover:text-red-600 hover:bg-red-50 transition-all duration-300 text-left"
