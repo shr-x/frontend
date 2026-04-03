@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { getProducts, updateProduct } from '@/lib/api';
 import { Flame, Tag, Plus, Check, X, Package } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 export function OffersManager() {
   const [products, setProducts] = useState<any[]>([]);
@@ -22,23 +23,31 @@ export function OffersManager() {
     fetchData();
   }, []);
 
+  const [isUpdating, setIsUpdating] = useState<string | null>(null);
+
   const toggleOffer = async (productId: string, currentStatus: boolean) => {
+    setIsUpdating(productId);
     try {
       const updated = await updateProduct(productId, { onOffer: !currentStatus });
       setProducts(products.map(p => p._id === productId ? updated : p));
     } catch (error) {
       console.error('Failed to toggle offer:', error);
+    } finally {
+      setIsUpdating(null);
     }
   };
 
   const handleOfferPriceChange = async (productId: string, newPrice: string) => {
+    const price = parseFloat(newPrice);
+    if (isNaN(price)) return;
+    setIsUpdating(productId);
     try {
-      const price = parseFloat(newPrice);
-      if (isNaN(price)) return;
       const updated = await updateProduct(productId, { offerPrice: price });
       setProducts(products.map(p => p._id === productId ? updated : p));
     } catch (e) {
       console.error(e);
+    } finally {
+      setIsUpdating(null);
     }
   };
 
@@ -77,35 +86,60 @@ export function OffersManager() {
           {offerProducts.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {offerProducts.map((p) => (
-                <div key={p._id} className="group relative bg-slate-50 rounded-[2rem] p-6 border border-slate-100 transition-all hover:bg-white hover:shadow-xl hover:shadow-red-500/5">
-                  <div className="flex items-start gap-4">
-                    <div className="h-16 w-16 rounded-2xl overflow-hidden bg-white border border-slate-100 shrink-0">
-                      <img src={p.image || 'https://placehold.co/100x100/png?text=Meat'} alt="" className="h-full w-full object-cover" />
+                <div key={p._id} className={cn(
+                  "group relative bg-slate-50 rounded-[2.5rem] p-8 border-2 transition-all duration-500",
+                  isUpdating === p._id ? "opacity-50 scale-95 border-red-100" : "hover:bg-white hover:shadow-2xl hover:shadow-red-500/10 border-transparent hover:border-red-50"
+                )}>
+                  {/* Badge */}
+                  <div className="absolute -top-3 -right-3 h-10 w-10 bg-red-600 rounded-2xl flex items-center justify-center shadow-lg shadow-red-600/40 rotate-12 group-hover:rotate-0 transition-transform duration-500 z-10">
+                    <Flame className="h-5 w-5 text-white fill-white" />
+                  </div>
+
+                  <div className="flex flex-col items-center text-center gap-6">
+                    <div className="relative">
+                      <div className="h-24 w-24 rounded-[2rem] overflow-hidden bg-white border-4 border-white shadow-xl shrink-0">
+                        <img src={p.image || 'https://placehold.co/200x200/png?text=Meat'} alt="" className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                      </div>
+                      <div className="absolute -bottom-2 -right-2 h-8 w-8 bg-green-500 rounded-xl border-4 border-slate-50 flex items-center justify-center">
+                        <Check className="h-4 w-4 text-white" />
+                      </div>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-black text-slate-900 truncate tracking-tight">{p.name}</h4>
-                      <div className="flex flex-col gap-1 mt-2">
-                        <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-black text-slate-400 line-through">MRP: ₹{p.basePrice}</span>
+
+                    <div className="flex-1 w-full">
+                      <h4 className="font-black text-xl text-slate-900 truncate tracking-tight mb-1 uppercase">{p.name}</h4>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">{p.category}</p>
+                      
+                      <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-5 border border-slate-100 space-y-4">
+                        <div className="flex justify-between items-center px-2">
+                          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Original MRP</span>
+                          <span className="text-sm font-black text-slate-400 line-through">₹{p.basePrice}</span>
                         </div>
-                        <div className="flex items-center bg-white border border-slate-200 rounded-xl px-3 py-1.5 focus-within:ring-4 focus-within:ring-red-500/5 focus-within:border-red-500 transition-all">
-                          <span className="text-red-600 font-black text-[10px] mr-1">Offer: ₹</span>
-                          <input 
-                            type="number" 
-                            defaultValue={p.offerPrice}
-                            onBlur={(e) => handleOfferPriceChange(p._id, e.target.value)}
-                            className="bg-transparent border-none outline-none text-xs font-black text-red-600 w-full"
-                            placeholder="Set Price"
-                          />
-                          <span className="text-[10px] font-bold text-slate-400 ml-1">/{p.unit}</span>
+                        
+                        <div className="h-px bg-gradient-to-r from-transparent via-slate-100 to-transparent"></div>
+
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black text-red-600 uppercase tracking-widest block text-left ml-2">Special Offer Price</label>
+                          <div className="flex items-center bg-red-50/50 border-2 border-red-100 rounded-2xl px-4 py-3 focus-within:ring-8 focus-within:ring-red-500/5 focus-within:border-red-500 transition-all">
+                            <span className="text-red-600 font-black text-lg mr-1">₹</span>
+                            <input 
+                              type="number" 
+                              defaultValue={p.offerPrice}
+                              onBlur={(e) => handleOfferPriceChange(p._id, e.target.value)}
+                              className="bg-transparent border-none outline-none text-lg font-black text-red-600 w-full placeholder:text-red-200"
+                              placeholder="0.00"
+                            />
+                            <span className="text-xs font-black text-red-400 ml-2 uppercase">/{p.unit}</span>
+                          </div>
                         </div>
                       </div>
                     </div>
+
                     <button 
                       onClick={() => toggleOffer(p._id, true)}
-                      className="h-8 w-8 bg-white text-slate-400 hover:text-red-600 rounded-lg flex items-center justify-center shadow-sm border border-slate-100 transition-all"
+                      className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-red-600 transition-all shadow-xl shadow-slate-900/10 active:scale-95 flex items-center justify-center gap-2 group/btn"
                     >
-                      <X className="h-4 w-4" />
+                      <X className="h-4 w-4 group-hover/btn:rotate-90 transition-transform" />
+                      Remove from Deals
                     </button>
                   </div>
                 </div>
