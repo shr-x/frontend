@@ -9,44 +9,53 @@ import {
   Settings, 
   Megaphone,
   LogOut,
-  X
+  X,
+  ShoppingBasket,
+  ChevronRight,
+  LifeBuoy
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/lib/AuthContext';
 
 interface SidebarProps {
   onClose?: () => void;
   className?: string;
   activeTab: string;
   setActiveTab: (tab: string) => void;
+  store?: any;
 }
 
-export function Sidebar({ onClose, className, activeTab, setActiveTab }: SidebarProps) {
+export function Sidebar({ onClose, className, activeTab, setActiveTab, store }: SidebarProps) {
+  const { logout } = useAuth();
+  
   const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'dashboard', label: 'Overview', icon: LayoutDashboard },
     { id: 'orders', label: 'Orders', icon: ShoppingBag },
-    { id: 'inventory', label: 'Inventory', icon: Package },
-    { id: 'campaigns', label: 'Campaigns', icon: Megaphone },
+    { id: 'inventory', label: 'Stock Manager', icon: Package },
+    { id: 'offers', label: 'Today\'s Offers', icon: Megaphone },
     { id: 'customers', label: 'Customers', icon: Users },
-    { id: 'settings', label: 'Settings', icon: Settings },
+    { id: 'support', label: 'Support', icon: LifeBuoy },
   ];
 
   return (
-    <div className={cn("flex h-full w-72 flex-col bg-slate-900 text-white shadow-2xl", className)}>
-      <div className="flex h-20 items-center justify-between px-8 border-b border-slate-800/50">
-        <div className="flex items-center space-x-3">
-          <div className="h-9 w-9 bg-red-600 rounded-xl flex items-center justify-center shadow-lg shadow-red-900/20">
-            <Package className="h-5 w-5 text-white" />
+    <div className={cn("flex h-full w-80 flex-col bg-white overflow-hidden", className)}>      {/* Brand Logo */}
+      <div className="flex h-24 items-center px-10 border-b border-slate-50">
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 bg-red-600 rounded-xl flex items-center justify-center shadow-lg shadow-red-600/20">
+            <ShoppingBasket className="h-6 w-6 text-white" />
           </div>
-          <h1 className="text-xl font-black tracking-tighter text-white">CHICK<span className="text-red-500">MEAT</span></h1>
+          <div className="flex flex-col">
+            <h1 className="text-xl font-black tracking-tighter text-slate-900 leading-none uppercase">{store?.name || 'STORE'}</h1>
+            <span className="text-[10px] font-black text-slate-300 tracking-[0.2em] mt-1 uppercase">Admin Hub</span>
+          </div>
         </div>
-        {onClose && (
-          <button onClick={onClose} className="lg:hidden p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors">
-            <X className="h-5 w-5" />
-          </button>
-        )}
       </div>
 
-      <nav className="flex-1 space-y-1 px-4 py-6">
+      {/* Navigation */}
+      <nav className="flex-1 px-6 py-10 space-y-2">
+        <div className="px-4 mb-6">
+          <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Menu</span>
+        </div>
         {menuItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
@@ -58,27 +67,57 @@ export function Sidebar({ onClose, className, activeTab, setActiveTab }: Sidebar
                 onClose?.();
               }}
               className={cn(
-                "w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-bold transition-all duration-200 text-left",
+                "w-full flex items-center gap-4 px-4 py-4 rounded-2xl text-sm font-black transition-all duration-300 text-left group relative",
                 isActive 
-                  ? "bg-red-600 text-white shadow-lg shadow-red-900/20" 
-                  : "text-slate-400 hover:bg-slate-800 hover:text-white"
+                  ? "bg-red-600 text-white shadow-xl shadow-red-600/20" 
+                  : "text-slate-400 hover:text-slate-900 hover:bg-slate-50"
               )}
             >
-              <Icon className={cn("h-5 w-5", isActive ? "text-white" : "text-slate-500")} />
-              <span>{item.label}</span>
-              {item.id === 'orders' && (
-                <span className="ml-auto bg-red-500/20 text-red-400 text-[10px] px-2 py-0.5 rounded-full font-black">8</span>
+              <Icon className={cn("h-5 w-5 transition-transform duration-300", isActive ? "scale-110" : "group-hover:scale-110")} />
+              <span className="flex-1">{item.label}</span>
+              {isActive && (
+                <ChevronRight className="h-4 w-4 opacity-50" />
               )}
             </button>
           );
         })}
       </nav>
 
-      <div className="p-4 border-t border-slate-800/50">
-        <button className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-400 hover:bg-red-500/10 hover:text-red-500 transition-all duration-200">
-          <LogOut className="h-5 w-5" />
-          <span>Logout</span>
-        </button>
+      {/* Footer / Profile */}
+      <div className="p-8 border-t border-slate-50 space-y-6">
+        <div className="px-4">
+          <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">System</span>
+        </div>
+        <div className="space-y-2">
+          <button 
+            onClick={() => setActiveTab('settings')}
+            className={cn(
+              "w-full flex items-center gap-4 px-4 py-4 rounded-2xl text-sm font-black transition-all duration-300 text-left group",
+              activeTab === 'settings' ? "bg-red-600 text-white shadow-xl shadow-red-600/20" : "text-slate-400 hover:text-slate-900 hover:bg-slate-50"
+            )}
+          >
+            <Settings className="h-5 w-5" />
+            <span>Settings</span>
+          </button>
+          <button 
+            onClick={logout}
+            className="w-full flex items-center gap-4 px-4 py-4 rounded-2xl text-sm font-black text-slate-400 hover:text-red-600 hover:bg-red-50 transition-all duration-300 text-left"
+          >
+            <LogOut className="h-5 w-5" />
+            <span>Sign Out</span>
+          </button>
+        </div>
+        
+        {/* Simple Store Indicator */}
+        <div className="bg-slate-50 rounded-2xl p-4 flex items-center gap-3">
+          <div className="h-8 w-8 bg-white border border-slate-100 rounded-lg flex items-center justify-center">
+            <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse"></div>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Status</span>
+            <span className="text-xs font-black text-slate-900 mt-1 uppercase">Store Open</span>
+          </div>
+        </div>
       </div>
     </div>
   );
