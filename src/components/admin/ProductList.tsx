@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { getProducts, getStoreInfo, updateProduct, createProduct, uploadImage } from '@/lib/api';
+import { getProducts, getStoreInfo, updateProduct, createProduct, uploadImage, API_BASE_URL } from '@/lib/api';
 import { 
   Package, 
   Tag, 
@@ -32,8 +32,6 @@ export function ProductList() {
     isAvailable: true,
   });
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -41,7 +39,7 @@ export function ProductList() {
     setIsUploading(true);
     try {
       const { filePath } = await uploadImage(file);
-      const fullUrl = `${apiUrl.endsWith('/') ? apiUrl.slice(0, -1) : apiUrl}${filePath}`;
+      const fullUrl = `${API_BASE_URL}${filePath}`;
       setNewProduct({ ...newProduct, image: fullUrl });
     } catch (error) {
       console.error('Upload failed:', error);

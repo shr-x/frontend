@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { createCampaign, uploadImage } from '@/lib/api';
+import { createCampaign, uploadImage, API_BASE_URL } from '@/lib/api';
 import { Megaphone, Send, Image as ImageIcon, Sparkles, Loader2, X } from 'lucide-react';
 
 export function CampaignManager() {
@@ -10,8 +10,6 @@ export function CampaignManager() {
   const [isSendingCampaign, setIsSendingCampaign] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -19,7 +17,7 @@ export function CampaignManager() {
     setIsUploading(true);
     try {
       const { filePath } = await uploadImage(file);
-      const fullUrl = `${apiUrl.endsWith('/') ? apiUrl.slice(0, -1) : apiUrl}${filePath}`;
+      const fullUrl = `${API_BASE_URL}${filePath}`;
       setCampaignImage(fullUrl);
     } catch (error) {
       console.error('Upload failed:', error);
