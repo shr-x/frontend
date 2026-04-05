@@ -10,8 +10,11 @@ import {
   Truck, 
   CreditCard,
   ChevronRight,
-  MoreHorizontal
+  X,
+  Search,
+  Filter
 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const statusConfig: Record<string, { label: string; icon: any; color: string; bgColor: string }> = {
   pending: { label: 'New Order', icon: Clock, color: 'text-rose-600', bgColor: 'bg-rose-50' },
@@ -22,12 +25,23 @@ const statusConfig: Record<string, { label: string; icon: any; color: string; bg
   cancelled: { label: 'Cancelled', icon: Package, color: 'text-slate-400', bgColor: 'bg-slate-100' },
 };
 
-export function OrderList({ minimal = false }: { minimal?: boolean }) {
+interface OrderListProps {
+  minimal?: boolean;
+  selectedOrderId?: string | null;
+  onClearSelection?: () => void;
+}
+
+export function OrderList({ minimal = false, selectedOrderId, onClearSelection }: OrderListProps) {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingOrder, setEditingOrder] = useState<any>(null);
   const [newPrice, setNewPrice] = useState<string>('');
   const [editedItems, setEditedItems] = useState<any[]>([]);
+
+  // Filtered orders based on selection
+  const filteredOrders = selectedOrderId 
+    ? orders.filter(o => o._id === selectedOrderId) 
+    : orders;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -110,17 +124,26 @@ export function OrderList({ minimal = false }: { minimal?: boolean }) {
   if (minimal) {
     return (
       <div className="divide-y divide-slate-50">
-        {orders.length === 0 ? (
+        {filteredOrders.length === 0 ? (
           <div className="p-12 text-center text-slate-400 font-medium">No active orders</div>
         ) : (
-          orders.slice(0, 5).map((order: any) => (
-            <div key={order._id} className="p-6 hover:bg-slate-50 transition-colors flex items-center justify-between group">
+          filteredOrders.slice(0, 5).map((order: any) => (
+            <div key={order._id} className={cn(
+              "p-6 hover:bg-slate-50 transition-colors flex items-center justify-between group",
+              order._id === selectedOrderId && "bg-red-50/30"
+            )}>
               <div className="flex items-center gap-5">
-                <div className="h-12 w-12 bg-slate-100 rounded-2xl flex items-center justify-center shrink-0 text-slate-400 group-hover:bg-red-50 group-hover:text-red-600 transition-all">
+                <div className={cn(
+                  "h-12 w-12 rounded-2xl flex items-center justify-center shrink-0 transition-all",
+                  order._id === selectedOrderId ? "bg-red-600 text-white" : "bg-slate-100 text-slate-400 group-hover:bg-red-50 group-hover:text-red-600"
+                )}>
                   <Package className="h-6 w-6" />
                 </div>
                 <div>
-                  <h4 className="font-black text-slate-900 tracking-tight">#{order._id?.slice(-6).toUpperCase()}</h4>
+                  <h4 className={cn(
+                    "font-black tracking-tight",
+                    order._id === selectedOrderId ? "text-red-600" : "text-slate-900"
+                  )}>#{order._id?.slice(-6).toUpperCase()}</h4>
                   <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-0.5">{order.customerId?.name || 'Walk-in Customer'}</p>
                 </div>
               </div>
@@ -142,11 +165,26 @@ export function OrderList({ minimal = false }: { minimal?: boolean }) {
 
   return (
     <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
-      <div className="px-10 py-8 border-b border-slate-50 flex justify-between items-center">
+      <div className="px-10 py-8 border-b border-slate-50 flex justify-between items-center bg-white sticky top-0 z-10">
         <div>
-          <h2 className="text-2xl font-black text-slate-900 tracking-tight">Order Management</h2>
+          <div className="flex items-center gap-3">
+            <h2 className="text-2xl font-black text-slate-900 tracking-tight">Order Management</h2>
+            {selectedOrderId && (
+              <span className="px-3 py-1 bg-red-50 text-red-600 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+                <Search className="h-3 w-3" /> Filtered by ID
+              </span>
+            )}
+          </div>
           <p className="text-slate-400 font-bold text-sm mt-1">Real-time tracking of all incoming orders</p>
         </div>
+        {selectedOrderId && (
+          <button 
+            onClick={onClearSelection}
+            className="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-black uppercase tracking-widest transition-all flex items-center gap-2"
+          >
+            <X className="h-4 w-4" /> Clear Filter
+          </button>
+        )}
       </div>
       <div className="overflow-x-auto">
         <table className="min-w-full">
@@ -161,7 +199,7 @@ export function OrderList({ minimal = false }: { minimal?: boolean }) {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-50">
-            {orders.length === 0 ? (
+            {filteredOrders.length === 0 ? (
               <tr>
                 <td colSpan={6} className="px-10 py-20 text-center">
                   <div className="flex flex-col items-center justify-center space-y-4">
@@ -173,12 +211,21 @@ export function OrderList({ minimal = false }: { minimal?: boolean }) {
                 </td>
               </tr>
             ) : (
-              orders.map((order: any) => {
+              filteredOrders.map((order: any) => {
                 const config = statusConfig[order.status] || statusConfig.preparing;
+                const isSelected = order._id === selectedOrderId;
                 return (
-                  <tr key={order._id} className="hover:bg-slate-50/50 transition-colors group">
+                  <tr key={order._id} className={cn(
+                    "hover:bg-slate-50/50 transition-colors group",
+                    isSelected && "bg-red-50/30 ring-2 ring-inset ring-red-500/10"
+                  )}>
                     <td className="px-10 py-6 whitespace-nowrap">
-                      <span className="font-black text-slate-900 tracking-tight">#{order._id?.slice(-6).toUpperCase()}</span>
+                      <span className={cn(
+                        "font-black tracking-tight",
+                        isSelected ? "text-red-600" : "text-slate-900"
+                      )}>
+                        #{order._id?.slice(-6).toUpperCase()}
+                      </span>
                     </td>
                     <td className="px-10 py-6 whitespace-nowrap">
                       <div className="flex items-center">

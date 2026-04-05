@@ -104,6 +104,14 @@ export default function Dashboard() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<any>(null);
   const [isSearching, setIsSearching] = useState(false);
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+
+  // Auto-clear search results when clicking away or selecting a tab
+  useEffect(() => {
+    if (activeTab !== 'orders') {
+      setSelectedOrderId(null);
+    }
+  }, [activeTab]);
   const [totalCustomers, setTotalCustomers] = useState(0);
   const [totalProducts, setTotalProducts] = useState(0);
   const [isExporting, setIsExporting] = useState(false);
@@ -243,7 +251,7 @@ export default function Dashboard() {
           </div>
         );
       case 'orders':
-        return <OrderList />;
+        return <OrderList selectedOrderId={selectedOrderId} onClearSelection={() => setSelectedOrderId(null)} />;
       case 'inventory':
         return <ProductList />;
       case 'offers':
@@ -340,7 +348,11 @@ export default function Dashboard() {
                         {searchResults.orders.map((order: any) => (
                           <div 
                             key={order._id}
-                            onClick={() => { setActiveTab('orders'); setSearchQuery(''); }}
+                            onClick={() => { 
+                              setSelectedOrderId(order._id);
+                              setActiveTab('orders'); 
+                              setSearchQuery(''); 
+                            }}
                             className="p-2 hover:bg-slate-50 rounded-xl cursor-pointer transition-colors flex items-center justify-between"
                           >
                             <span className="text-xs font-bold text-slate-700">#{order._id.toString().slice(-6).toUpperCase()}</span>
