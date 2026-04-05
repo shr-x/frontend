@@ -32,7 +32,7 @@ export function CustomerList() {
     <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
       <div className="p-10 border-b border-slate-50 flex items-center justify-between flex-wrap gap-4">
         <div className="flex items-center gap-4">
-          <div className="h-12 w-12 bg-red-50 rounded-2xl flex items-center justify-center border border-red-100">
+          <div className="h-12 w-12 bg-red-50 rounded-2xl flex items-center justify-center border border-red-200">
             <Users className="h-6 w-6 text-red-600" />
           </div>
           <h3 className="text-xl font-black text-slate-900 tracking-tight">
